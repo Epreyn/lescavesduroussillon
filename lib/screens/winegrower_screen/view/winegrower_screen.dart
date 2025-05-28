@@ -1,63 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/classes/custom_data.dart';
-import '../../../core/classes/unique_controllers.dart';
+import '../../../core/classes/smooth_scroll_wrapper.dart';
 import '../../../core/models/winegrower.dart';
-import '../../../features/custom_animated_text/view/custom_animated_text.dart';
-import '../../../features/custom_animation/view/custom_animation.dart';
 import '../controllers/winegrower_screen_controller.dart';
 
 class WinegrowerScreen extends StatelessWidget {
   final Winegrower winegrower;
-
   const WinegrowerScreen({super.key, required this.winegrower});
 
   @override
   Widget build(BuildContext context) {
-    WinegrowerScreenController cc = Get.put(WinegrowerScreenController());
+    final c = Get.put(WinegrowerScreenController());
+
+    final h = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
-          Hero(
-            tag: winegrower.id,
-            child: Image.network(
-              winegrower.imageURL,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              errorBuilder: (ctx, _, __) => const Icon(Icons.error),
+          /* ----------------------------------------------------------------
+             1) PHOTO plein-écran + chips (inchangé)
+          ----------------------------------------------------------------- */
+          SingleChildScrollView(
+            controller: c.scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: h,
+                  width: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      SizedBox(
+                        height: h,
+                        width: double.infinity,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              winegrower.imageURL,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (_, __, ___) => const Icon(Icons.error),
+                            ),
+                            Positioned(
+                              top: c.base * 2,
+                              right: c.base * 2,
+                              child: c.chip(
+                                winegrower.terroirName,
+                                alignLeft: false,
+                                delay: Duration(),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: c.base * 2,
+                              right: c.base * 2,
+                              child: c.chip(
+                                winegrower.domainName,
+                                big: true,
+                                alignLeft: false,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                /* ----------------------------------------------------------
+                     2) CARTES : Row desktop  |  Column mobile
+                  ----------------------------------------------------------- */
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: c.base * 4),
+                  child:
+                      c.mobile
+                          ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              c.historyCard(),
+                              SizedBox(height: c.base * 4),
+                              c.cuveesCard(),
+                            ],
+                          )
+                          : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [c.historyCard(), c.cuveesCard()],
+                          ),
+                ),
+
+                SizedBox(height: c.base * 8),
+              ],
             ),
           ),
+
+          /* ----------------------------------------------------------------
+             3) Bouton retour (pinned) – inchangé
+          ----------------------------------------------------------------- */
           Positioned(
-            top: UniquesControllers().data.baseSpace * 2,
-            left: UniquesControllers().data.baseSpace * 2,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: Colors.white, size: UniquesControllers().data.baseSpace * 4),
-              onPressed: () => Get.back(),
-            ),
-          ),
-          Positioned(
-            bottom: UniquesControllers().data.baseSpace * 4,
-            right: UniquesControllers().data.baseSpace * 4,
-            child: CustomAnimation(
-              duration: Duration(milliseconds: 400),
-              isOpacity: true,
-              xStartPosition: UniquesControllers().data.baseSpace * 4,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(UniquesControllers().data.baseSpace * 2),
-                ),
-                padding: EdgeInsets.all(UniquesControllers().data.baseSpace * 2),
-                child: CustomAnimatedText(
-                  key: UniqueKey(),
-                  text: winegrower.name,
-                  direction: Direction.left,
-                  baseDelay: (UniquesControllers().data.baseSpace * 3).toInt(),
-                  duration: (UniquesControllers().data.baseSpace * 75).toInt(),
-                  style: TextStyle(fontSize: UniquesControllers().data.baseSpace * 8, color: Colors.white),
-                ),
+            top: c.base * 2,
+            left: c.base * 2,
+            child: Material(
+              color: c.theme.colorScheme.primary,
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                iconSize: c.base * 4,
+                splashRadius: c.base * 3.5,
+                color: c.theme.colorScheme.onPrimary,
+                onPressed: Get.back,
               ),
             ),
           ),

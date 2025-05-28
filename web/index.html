@@ -1,38 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+<!doctype html>
+<html lang="fr">
+    <head>
+        <!-- ======================= Base & Charset ======================= -->
+        <base href="$FLUTTER_BASE_HREF" />
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- ======================= SEO Core ============================= -->
+        <title>
+            Les Caves du Roussillon – Vins d’artistes-vignerons à Perpignan
+        </title>
+        <meta
+            name="description"
+            content="Les Caves du Roussillon proposent la sélection la plus pointue de vins d'artistes-vignerons du Roussillon. Découvrez nos producteurs, leurs terroirs et commandez en ligne."
+        />
+        <meta name="robots" content="index,follow" />
+        <link rel="canonical" href="https://lescavesduroussillon.com/" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <!-- ======================= Fav / Icons ========================== -->
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="icons/Icon-192.png"
+        />
+        <meta name="theme-color" content="#7c1224" />
+        <!-- bordeaux -->
+        <!-- ======================= Open Graph =========================== -->
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Les Caves du Roussillon" />
+        <meta
+            property="og:description"
+            content="Sélection de vins d’artistes-vignerons du Roussillon. Achat en ligne, conseils et livraison."
+        />
+        <meta property="og:url" content="https://lescavesduroussillon.com/" />
+        <meta property="og:site_name" content="Les Caves du Roussillon" />
+        <meta
+            property="og:image"
+            content="https://lescavesduroussillon.com/og-image.jpg"
+        />
+        <!-- ======================= Twitter Card ========================= -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Les Caves du Roussillon" />
+        <meta
+            name="twitter:description"
+            content="Vins d’artistes-vignerons, vente en ligne, terroirs du Roussillon."
+        />
+        <meta
+            name="twitter:image"
+            content="https://lescavesduroussillon.com/og-image.jpg"
+        />
+        <!-- ======================= PWA / Manifest ======================= -->
+        <link rel="manifest" href="manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta
+            name="apple-mobile-web-app-title"
+            content="Les Caves du Roussillon"
+        />
+        <!-- ======================= Structured Data ====================== -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WineStore",
+                "name": "Les Caves du Roussillon",
+                "image": "https://lescavesduroussillon.com/og-image.jpg",
+                "url": "https://lescavesduroussillon.com/",
+                "telephone": "+33-468-54-40-04",
+                "priceRange": "€€",
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "1085 Avenue Julien Panchot",
+                    "addressLocality": "Perpignan",
+                    "postalCode": "66000",
+                    "addressCountry": "FR"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": 42.688,
+                    "longitude": 2.8758
+                },
+                "openingHoursSpecification": [
+                    {
+                        "@type": "OpeningHoursSpecification",
+                        "dayOfWeek": [
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday"
+                        ],
+                        "opens": "09:00",
+                        "closes": "18:30"
+                    }
+                ],
+                "sameAs": [
+                    "https://www.instagram.com/lescavesduroussillon",
+                    "https://www.facebook.com/lescavesduroussillon"
+                ]
+            }
+        </script>
+    </head>
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Les Caves du Roussillon">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="lescavesduroussillon">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>lescavesduroussillon</title>
-  <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+    <body>
+        <!-- Flutter app bootstrap -->
+        <script src="flutter_bootstrap.js" async></script>
+    </body>
 </html>

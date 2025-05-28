@@ -7,8 +7,10 @@ import '../../../core/classes/controller_mixin.dart';
 import '../../../core/classes/unique_controllers.dart';
 import '../../../core/models/winegrower.dart';
 
-class HomeScreenController extends GetxController with ControllerMixin {
+class HomeScreenController extends GetxController
+    with WidgetsBindingObserver, ControllerMixin {
   final scrollController = ScrollController();
+  double _lastOffset = 0.0;
 
   RxDouble cardTop = 0.0.obs;
   RxDouble textCardAlpha = 1.0.obs;
@@ -18,9 +20,11 @@ class HomeScreenController extends GetxController with ControllerMixin {
 
   RxBool pinned = true.obs;
 
-  double get finalCardWidth => UniquesControllers().data.carouselItemWidth.value;
+  double get finalCardWidth =>
+      UniquesControllers().data.carouselItemWidth.value;
 
-  double get finalCardHeight => UniquesControllers().data.carouselItemHeight.value;
+  double get finalCardHeight =>
+      UniquesControllers().data.carouselItemHeight.value;
 
   RxDouble heightMultiplier = 2.0.obs;
   RxDouble sectionHeight = 0.0.obs;
@@ -28,15 +32,16 @@ class HomeScreenController extends GetxController with ControllerMixin {
   RxList<Winegrower> winegrowers = <Winegrower>[].obs;
   RxInt currentIndex = 0.obs;
 
-  late InfiniteScrollController carouselController;
+  final InfiniteScrollController carouselController =
+      InfiniteScrollController();
   bool isAnimating = false;
-  final animDuration = Duration(milliseconds: 400);
+  final animDuration = Duration(milliseconds: 600);
 
   String originalText =
-      """« Honorer les aînés, aider les jeunes, embellir la vie des amateurs, répandre la compréhension et l’amour de la peinture, quelle plus belle profession et comment ne pas essayer d’en être digne ! 
-    
+      """« Honorer les aînés, aider les jeunes, embellir la vie des amateurs, répandre la compréhension et l’amour de la peinture, quelle plus belle profession et comment ne pas essayer d’en être digne !
+
 La direction d’une galerie est surtout « Présence », présence dans le choix, l’exposition, la vente. Présence tout simplement. Du plus grand au plus petit, tous doivent trouver un accueil attentif. Personne n’est à négliger qui de près ou de loin touche à la peinture.
-    
+
 Pour moi, une galerie n’est pas une banque, ni une administration, ni une société aux capitaux anonymes, avec des directeurs inaccessibles, mais bien plutôt une entreprise individuelle et familiale. »""";
 
   RxBool transformWords = false.obs;
@@ -48,20 +53,77 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
   @override
   void onInit() {
     super.onInit();
-    carouselController = InfiniteScrollController();
+    WidgetsBinding.instance.addObserver(this);
 
-    cardTop.value = initialCardTop();
-    pinnedCardWidth.value = pinnedCardWidthStart();
-    pinnedCardHeight.value = pinnedCardHeightStart();
+    scrollController.addListener(() {
+      _lastOffset = scrollController.offset;
+      _applyPinnedLayout(_lastOffset);
+    });
 
-    scrollController.addListener(_onScroll);
+    _applyPinnedLayout(_lastOffset);
     _loadWinegrowers();
   }
 
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final savedOffset = _lastOffset;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        final max = scrollController.position.maxScrollExtent;
+        scrollController.jumpTo(savedOffset.clamp(0.0, max));
+      }
+
+      _applyPinnedLayout(savedOffset);
+    });
+  }
+
+  void _applyPinnedLayout(double offset) {
+    final stillPinned = offset < pinnedStartOffset();
+    pinned.value = stillPinned;
+
+    if (stillPinned) {
+      final t = (offset / pinnedStartOffset()).clamp(0.0, 1.0);
+      final curved = Curves.easeOutCirc.transform(t);
+      final rev = Curves.easeOutCirc.transform(t);
+
+      cardTop.value = _lerp(initialCardTop(), pinnedCardTop(), curved);
+      pinnedCardWidth.value = _lerp(
+        pinnedCardWidthStart(),
+        finalCardWidth,
+        curved,
+      );
+      pinnedCardHeight.value = _lerp(
+        pinnedCardHeightStart(),
+        finalCardHeight,
+        curved,
+      );
+      textCardAlpha.value = 1.0 - rev;
+    } else {
+      final extra = offset - pinnedStartOffset();
+      cardTop.value = pinnedCardTop() - extra;
+
+      pinnedCardWidth.value = finalCardWidth;
+      pinnedCardHeight.value = finalCardHeight;
+      textCardAlpha.value = 0.0;
+    }
+  }
+
   void _loadWinegrowers() {
-    FirebaseFirestore.instance.collection('winegrowers').snapshots().listen((snapshot) {
-      final docs = snapshot.docs.map((doc) => Winegrower.fromDocument(doc)).toList();
+    FirebaseFirestore.instance.collection('winegrowers').snapshots().listen((
+      snapshot,
+    ) {
+      final docs =
+          snapshot.docs.map((doc) => Winegrower.fromDocument(doc)).toList();
+
       docs.shuffle();
+
       winegrowers.value = docs;
     });
   }
@@ -101,8 +163,16 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
       final curvedTReverse = Curves.easeOutCirc.transform(t);
 
       cardTop.value = _lerp(initialCardTop(), pinnedCardTop(), curvedT);
-      pinnedCardWidth.value = _lerp(pinnedCardWidthStart(), finalCardWidth, curvedT);
-      pinnedCardHeight.value = _lerp(pinnedCardHeightStart(), finalCardHeight, curvedT);
+      pinnedCardWidth.value = _lerp(
+        pinnedCardWidthStart(),
+        finalCardWidth,
+        curvedT,
+      );
+      pinnedCardHeight.value = _lerp(
+        pinnedCardHeightStart(),
+        finalCardHeight,
+        curvedT,
+      );
       textCardAlpha.value = 1.0 - curvedTReverse;
     } else {
       final extra = offset - pinnedStartOffset();
@@ -121,7 +191,10 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
   Future<void> nextItem() async {
     if (isAnimating) return;
     isAnimating = true;
-    carouselController.nextItem(duration: animDuration, curve: Curves.easeInOut);
+    carouselController.nextItem(
+      duration: animDuration,
+      curve: Curves.decelerate,
+    );
     await Future.delayed(animDuration);
     isAnimating = false;
   }
@@ -129,7 +202,10 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
   Future<void> previousItem() async {
     if (isAnimating) return;
     isAnimating = true;
-    carouselController.previousItem(duration: animDuration, curve: Curves.easeInOut);
+    carouselController.previousItem(
+      duration: animDuration,
+      curve: Curves.decelerate,
+    );
     await Future.delayed(animDuration);
     isAnimating = false;
   }
@@ -145,7 +221,11 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
 
     final spans = <InlineSpan>[];
 
-    var replacedStyle = TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.bold);
+    var replacedStyle = TextStyle(
+      color: UniquesControllers().data.currentTheme.colorScheme.primary,
+      fontWeight: FontWeight.bold,
+      fontStyle: FontStyle.italic,
+    );
 
     text.splitMapJoin(
       pattern,
@@ -158,11 +238,15 @@ Pour moi, une galerie n’est pas une banque, ni une administration, ni une soci
           if (lower == 'de la peinture') {
             spans.add(TextSpan(text: 'du vin', style: replacedStyle));
           } else if (lower == 'd’une galerie') {
-            spans.add(TextSpan(text: 'des Caves du Roussillon', style: replacedStyle));
+            spans.add(
+              TextSpan(text: 'des Caves du Roussillon', style: replacedStyle),
+            );
           } else if (lower == 'à la peinture') {
             spans.add(TextSpan(text: 'au vin', style: replacedStyle));
           } else if (lower == 'une galerie') {
-            spans.add(TextSpan(text: 'les Caves du Roussillon', style: replacedStyle));
+            spans.add(
+              TextSpan(text: 'les Caves du Roussillon', style: replacedStyle),
+            );
           } else {
             spans.add(TextSpan(text: matchStr));
           }

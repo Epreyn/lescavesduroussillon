@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://lescavesduroussillon.com/</loc></url>
+  <url><loc>https://lescavesduroussillon.com/vignerons</loc></url>
+  <url><loc>https://lescavesduroussillon.com/contact</loc></url>
+  <!-- Pour chaque vigneron : -->
+  <!-- <url><loc>https://lescavesduroussillon.com/vigneron/Domaine-X</loc></url> -->
+</urlset>

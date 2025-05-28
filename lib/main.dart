@@ -28,7 +28,6 @@ class App extends StatelessWidget {
         theme: UniquesControllers().data.currentTheme,
         initialRoute: AppScreens.initial,
         getPages: AppScreens.routes,
-        defaultTransition: Transition.noTransition,
         debugShowCheckedModeBanner: false,
       ),
     );

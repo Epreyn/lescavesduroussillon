@@ -29,7 +29,8 @@ class CustomInfiniteCarousel extends StatelessWidget {
         itemCount: list.length,
         physics: const NeverScrollableScrollPhysics(),
         itemExtent: UniquesControllers().data.carouselItemWidth * 1.5,
-        onIndexChanged: (idx) => homeScreenController.onCarouselIndexChanged(idx),
+        onIndexChanged:
+            (idx) => homeScreenController.onCarouselIndexChanged(idx),
         itemBuilder: (context, itemIndex, realIndex) {
           final winegrower = list[itemIndex];
 
@@ -40,27 +41,40 @@ class CustomInfiniteCarousel extends StatelessWidget {
           final isCenterClickable = (!pinned && itemIndex == currentIdx);
 
           return CustomAnimation(
-            fixedTag: winegrower.id + itemIndex.toString(),
+            fixedTag: winegrower.id,
             isOpacity: !isCenterClickable,
-            delay: isCenterClickable ? null : Duration(milliseconds: 400),
-            duration: isCenterClickable ? null : Duration(milliseconds: 800),
+            delay:
+                isCenterClickable
+                    ? null
+                    : UniquesControllers().data.baseDelayWithMultiplier(14),
+            duration:
+                isCenterClickable
+                    ? null
+                    : UniquesControllers().data.baseDurationWithMultiplier(2),
             child: SizedBox(
               width: UniquesControllers().data.carouselItemWidth.value,
               height: UniquesControllers().data.carouselItemHeight.value,
 
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: UniquesControllers().data.carouselItemWidth / 4),
-                child: Hero(
-                  tag: winegrower.id,
-                  child: Material(
-                    child: Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: HoverShrinkCard(
-                        onTap: () {
-                          final paramName = Uri.encodeComponent(winegrower.name);
-                          Get.toNamed('/winegrower/$paramName', arguments: winegrower);
-                        },
-                        child: CustomInfiniteCarouselItem(winegrower: winegrower, isCenterItem: isCenterClickable),
+                padding: EdgeInsets.symmetric(
+                  horizontal: UniquesControllers().data.carouselItemWidth / 4,
+                ),
+                child: Material(
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: HoverShrinkCard(
+                      onTap: () {
+                        final paramName = Uri.encodeComponent(
+                          winegrower.domainName,
+                        );
+                        Get.toNamed(
+                          '/vigneron/$paramName',
+                          arguments: winegrower,
+                        );
+                      },
+                      child: CustomInfiniteCarouselItem(
+                        winegrower: winegrower,
+                        isCenterItem: isCenterClickable,
                       ),
                     ),
                   ),

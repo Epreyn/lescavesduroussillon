@@ -1,6 +1,6 @@
 name: lescavesduroussillon
 description: "Les Caves du Roussillon"
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
 
   get:
+  get_storage:
   firebase_core:
   firebase_auth:
   cloud_firestore:
@@ -20,6 +21,8 @@ dependencies:
 
   infinite_carousel:
   auto_size_text:
+  url_launcher: ^6.2.6
+  file_picker:
 
 dev_dependencies:
   flutter_test:
